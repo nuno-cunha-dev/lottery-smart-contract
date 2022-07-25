@@ -19,7 +19,7 @@ contract Lottery {
         accumulatedPrize += msg.value;
     }
 
-    function pickWinner() public restricted {
+    function pickWinner() public onlyOwner {
         // Choose the winner
         address winner = players[generateUnsafeRandomNumber() % players.length];
 
@@ -43,10 +43,10 @@ contract Lottery {
         uint256 prize = balances[player];
         require(prize > 0, "No prize for this player.");
 
+        delete balances[player];
+
         bool success = player.send(prize);
         require(success, "Error on sending the prize.");
-
-        delete balances[player];
     }
 
     function getPlayers() public view returns (address payable[] memory) {
@@ -62,7 +62,7 @@ contract Lottery {
             );
     }
 
-    modifier restricted() {
+    modifier onlyOwner() {
         require(msg.sender == manager);
         _;
     }
